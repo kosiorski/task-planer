@@ -2,6 +2,7 @@ package pl.kosiorski.model;
 
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import pl.kosiorski.dto.TaskDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -34,4 +35,13 @@ public class Task {
 
   @OneToMany(mappedBy = "task")
   private List<Comment> comments;
+
+
+
+  public TaskDto toTaskDto(){
+    TaskDto taskDto = new TaskDto();
+    taskDto.setName(name);
+    taskDto.setDescription(description);
+    return taskDto;
+  }
 }

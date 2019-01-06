@@ -19,8 +19,6 @@ public class UserDto {
         User user = new User();
         user.setLogin(login);
         user.setEmail(email);
-        user.setPassword(password);
-
         return user;
     }
 
@@ -30,7 +28,6 @@ public class UserDto {
         user.setEmail(email);
         user.setPassword(password);
         user.setActive(true);
-
         return user;
     }
 
