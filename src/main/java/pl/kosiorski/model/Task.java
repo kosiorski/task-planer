@@ -2,6 +2,7 @@ package pl.kosiorski.model;
 
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import pl.kosiorski.dto.TaskDto;
 
 import javax.persistence.*;
@@ -24,6 +25,8 @@ public class Task {
   @NotBlank private String description;
 
   @CreationTimestamp private LocalDateTime created;
+
+  @UpdateTimestamp private LocalDateTime updated;
 
   private String priority;
 

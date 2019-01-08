@@ -2,6 +2,8 @@ package pl.kosiorski.model;
 
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import pl.kosiorski.dto.CategoryDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -21,9 +23,17 @@ public class Category {
 
   @CreationTimestamp private LocalDateTime created;
 
+  @UpdateTimestamp private LocalDateTime updated;
+
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
+
+  public CategoryDto toCategoryDto(){
+    CategoryDto categoryDto = new CategoryDto();
+    categoryDto.setName(name);
+    return categoryDto;
+  }
 
 
 }

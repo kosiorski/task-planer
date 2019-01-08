@@ -2,7 +2,7 @@ package pl.kosiorski.controller;
 
 import org.springframework.web.bind.annotation.*;
 import pl.kosiorski.dto.TaskDto;
-import pl.kosiorski.services.TaskService;
+import pl.kosiorski.service.TaskService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,8 +18,8 @@ public class TaskController {
   }
 
   @GetMapping("")
-  public List<TaskDto> getList() {
-    return taskService.getAllTasks();
+  public List<TaskDto> getAll() {
+    return taskService.getAll();
   }
 
   @GetMapping("/{id}")
@@ -30,7 +30,7 @@ public class TaskController {
   @PostMapping("")
   public TaskDto save(@RequestBody @Valid TaskDto taskDto) {
 
-    taskService.saveTask(taskDto);
+    taskService.save(taskDto);
     return taskDto;
   }
 
@@ -40,7 +40,9 @@ public class TaskController {
   }
 
   @PutMapping("/{id}")
-  public TaskDto uptade(@PathVariable Long id, @Valid @RequestBody TaskDto taskDto){
-      return taskService.updateById(id);
+  public TaskDto updade(@PathVariable Long id, @Valid @RequestBody TaskDto taskDto){
+      return taskService.updateById(id, taskDto);
   }
+
+
 }

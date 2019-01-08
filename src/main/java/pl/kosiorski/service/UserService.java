@@ -1,4 +1,4 @@
-package pl.kosiorski.services;
+package pl.kosiorski.service;
 
 import pl.kosiorski.dto.UserDto;
 

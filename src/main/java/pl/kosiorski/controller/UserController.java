@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.kosiorski.dto.UserDto;
-import pl.kosiorski.services.UserService;
+import pl.kosiorski.service.UserService;
 
 import java.util.List;
 
