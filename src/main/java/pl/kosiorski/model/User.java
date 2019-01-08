@@ -46,4 +46,8 @@ public class User {
 
     return user;
   }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
 }

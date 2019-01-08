@@ -3,6 +3,7 @@ package pl.kosiorski.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.kosiorski.dto.UserDto;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
@@ -41,17 +42,17 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public boolean loginUser(User user) throws UserNotFoundException {
+  public boolean loginUser(UserDto userDto) throws UserNotFoundException {
 
     boolean result = false;
+    User fromDto = userDto.toSave();
     User userByLogin;
 
     try {
-      userByLogin = userRepository.findByLogin(user.getLogin());
+      userByLogin = userRepository.findByLogin(userDto.getLogin());
 
-      boolean isPassCorrect =
-          bCryptPasswordEncoder.matches(user.getPassword(), userByLogin.getPassword());
-      boolean isLoginCorrect = userByLogin.getLogin().equals(user.getLogin());
+      boolean isPassCorrect = bCryptPasswordEncoder.matches(fromDto.getPassword(), userByLogin.getPassword());
+      boolean isLoginCorrect = userByLogin.getLogin().equals(userDto.getLogin());
 
       if (isPassCorrect && isLoginCorrect) {
         userByLogin.setToken(UUID.randomUUID().toString());
@@ -67,17 +68,21 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public User registerUser(User user) throws UserAlreadyExistsException {
+  public UserDto registerUser(UserDto userDto) throws UserAlreadyExistsException {
 
-    try {
-      if (!userRepository.existsByLogin(user.getLogin())) {
-        user.setToken(UUID.randomUUID().toString());
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-      }
-    } catch (Exception exception) {
+    User user = userDto.toSave();
+
+    if (!userRepository.existsByLogin(userDto.getLogin())) {
+
+      user.setToken(UUID.randomUUID().toString());
+      user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+      user.setActive(true);
+      userRepository.save(user);
+
+
+    } else {
       throw new UserAlreadyExistsException("User with that login already exists");
     }
-    return user;
+    return user.toUserDto();
   }
 }

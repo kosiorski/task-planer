@@ -9,11 +9,8 @@ public class UserDto {
 
     private String login;
 
-    private String password;
-
     private String email;
 
-    private String active;
 
     public User toUser() {
         User user = new User();
@@ -26,8 +23,6 @@ public class UserDto {
         User user = new User();
         user.setLogin(login);
         user.setEmail(email);
-        user.setPassword(password);
-        user.setActive(true);
         return user;
     }
 
