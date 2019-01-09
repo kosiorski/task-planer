@@ -29,34 +29,30 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public boolean valid(String tokenFromHeader) throws NoAuthorizationException {
 
-    try {
-      User userByToken = userRepository.findByToken(tokenFromHeader);
-      String newToken = UUID.randomUUID().toString();
-      userByToken.setToken(newToken);
-      userRepository.save(userByToken);
+    if (userRepository.existsByLogin(userRepository.findByToken(tokenFromHeader).getLogin())) {
       return true;
 
-    } catch (Exception exception) {
+    } else {
       throw new NoAuthorizationException("You dont have authorization, try to login");
     }
   }
 
   @Override
-  public boolean loginUser(UserDto userDto) throws UserNotFoundException {
+  public boolean loginUser(User toLogin) throws UserNotFoundException {
 
     boolean result = false;
-    User fromDto = userDto.toSave();
-    User userByLogin;
+    User fromDb;
 
     try {
-      userByLogin = userRepository.findByLogin(userDto.getLogin());
+      fromDb = userRepository.findByLogin(toLogin.getLogin());
 
-      boolean isPassCorrect = bCryptPasswordEncoder.matches(fromDto.getPassword(), userByLogin.getPassword());
-      boolean isLoginCorrect = userByLogin.getLogin().equals(userDto.getLogin());
+      boolean isPassCorrect =
+          bCryptPasswordEncoder.matches(toLogin.getPassword(), fromDb.getPassword());
+      boolean isLoginCorrect = fromDb.getLogin().equals(toLogin.getLogin());
 
       if (isPassCorrect && isLoginCorrect) {
-        userByLogin.setToken(UUID.randomUUID().toString());
-        userRepository.save(userByLogin);
+        fromDb.setToken(UUID.randomUUID().toString());
+        userRepository.save(fromDb);
 
         result = true;
       }
@@ -68,21 +64,19 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public UserDto registerUser(UserDto userDto) throws UserAlreadyExistsException {
+  public UserDto registerUser(User toRegister) throws UserAlreadyExistsException {
 
-    User user = userDto.toSave();
+    if (!userRepository.existsByLogin(toRegister.getLogin())) {
 
-    if (!userRepository.existsByLogin(userDto.getLogin())) {
+      toRegister.setPassword(bCryptPasswordEncoder.encode(toRegister.getPassword()));
+      toRegister.setActive(true);
+      toRegister.setToken(UUID.randomUUID().toString());
 
-      user.setToken(UUID.randomUUID().toString());
-      user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-      user.setActive(true);
-      userRepository.save(user);
-
+      userRepository.save(toRegister);
 
     } else {
       throw new UserAlreadyExistsException("User with that login already exists");
     }
-    return user.toUserDto();
+    return toRegister.toUserDto();
   }
 }

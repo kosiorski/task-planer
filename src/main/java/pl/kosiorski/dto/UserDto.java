@@ -11,11 +11,14 @@ public class UserDto {
 
     private String email;
 
+    private String token;
+
 
     public User toUser() {
         User user = new User();
         user.setLogin(login);
         user.setEmail(email);
+        user.setToken(token);
         return user;
     }
 

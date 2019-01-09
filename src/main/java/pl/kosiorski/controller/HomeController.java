@@ -6,6 +6,7 @@ import pl.kosiorski.dto.UserDto;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
+import pl.kosiorski.model.User;
 import pl.kosiorski.service.AuthService;
 
 @RestController
@@ -20,15 +21,15 @@ public class HomeController {
   }
 
   @PostMapping("/register")
-  public UserDto register(@RequestBody UserDto userDto) throws UserAlreadyExistsException {
+  public UserDto register(@RequestBody User user) throws UserAlreadyExistsException {
 
-    return authService.registerUser(userDto);
+    return authService.registerUser(user);
   }
 
   @PostMapping("/login")
-  public boolean login(@RequestBody UserDto userDto) throws UserNotFoundException {
+  public boolean login(@RequestBody User user) throws UserNotFoundException {
 
-    return authService.loginUser(userDto);
+    return authService.loginUser(user);
   }
 
   @PostMapping("/valid")

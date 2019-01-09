@@ -2,25 +2,21 @@ package pl.kosiorski.service;
 
 import pl.kosiorski.dto.CategoryDto;
 import pl.kosiorski.model.Category;
-import pl.kosiorski.model.User;
 
 import java.util.List;
 
 public interface CategoryService {
 
-  Category save(CategoryDto categoryDto);
-
-  List<CategoryDto> getAll();
+  void save(Category category, String token);
 
   CategoryDto findById(Long id);
 
   String removeById(Long id);
 
-  CategoryDto updateById(Long id, CategoryDto categoryDto);
+  CategoryDto updateById(Long id, Category category);
 
-  List<Category> findAllByUserId(Long id);
+  List<CategoryDto> findAllByUserId(Long id);
 
-  List<CategoryDto> findAll();
 
 
 
