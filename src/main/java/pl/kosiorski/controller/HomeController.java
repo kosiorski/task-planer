@@ -20,6 +20,7 @@ public class HomeController {
     this.authService = authService;
   }
 
+
   @PostMapping("/register")
   public UserDto register(@RequestBody User user) throws UserAlreadyExistsException {
 
@@ -27,7 +28,7 @@ public class HomeController {
   }
 
   @PostMapping("/login")
-  public boolean login(@RequestBody User user) throws UserNotFoundException {
+  public String login(@RequestBody User user) throws UserNotFoundException {
 
     return authService.loginUser(user);
   }

@@ -10,7 +10,7 @@ public interface AuthService {
 
   UserDto registerUser(User user) throws UserAlreadyExistsException;
 
-  boolean loginUser(User user) throws UserNotFoundException;
+  String loginUser(User user) throws UserNotFoundException;
 
   boolean valid(String tokenFromHeader) throws NoAuthorizationException;
 }

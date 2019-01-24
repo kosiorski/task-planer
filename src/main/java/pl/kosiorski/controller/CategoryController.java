@@ -1,7 +1,9 @@
 package pl.kosiorski.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.CategoryDto;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.model.Category;
@@ -29,18 +31,18 @@ public class CategoryController {
   }
 
   @GetMapping("")
-  public List<CategoryDto> getAll(@RequestHeader("Authorization") String token)
-      throws NoAuthorizationException {
+  public List<CategoryDto> getAll(@RequestHeader("Authorization") String token) {
 
-    if (authService.valid(token)) {
+    List<CategoryDto> allCategoriesDto = null;
 
-      List<CategoryDto> allByUserId = categoryService.findAllByUserId(userService.findByToken(token).getId());
-      userService.generateNewToken(token);
-      return allByUserId;
-
-    } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+    try {
+      if (authService.valid(token)) {
+        allCategoriesDto = categoryService.findAllByUserId(userService.findByToken(token).getId());
+      }
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+    return allCategoriesDto;
   }
 
   @GetMapping("/{id}")
@@ -48,8 +50,6 @@ public class CategoryController {
       throws NoAuthorizationException {
 
     if (authService.valid(token)) {
-
-      userService.generateNewToken(token);
       return categoryService.findById(id);
 
     } else {
@@ -65,7 +65,6 @@ public class CategoryController {
     if (authService.valid(token)) {
 
       categoryService.save(category, token);
-      userService.generateNewToken(token);
       return category.toCategoryDto();
 
     } else {
@@ -77,8 +76,6 @@ public class CategoryController {
   public String delete(@PathVariable Long id, @RequestHeader("Authorization") String token)
       throws NoAuthorizationException {
     if (authService.valid(token)) {
-
-      userService.generateNewToken(token);
       return categoryService.removeById(id);
 
     } else {
@@ -94,8 +91,6 @@ public class CategoryController {
       throws NoAuthorizationException {
 
     if (authService.valid(token)) {
-
-      userService.generateNewToken(token);
       return categoryService.updateById(id, category);
 
     } else {

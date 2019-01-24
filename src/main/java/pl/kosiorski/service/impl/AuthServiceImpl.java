@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public boolean valid(String tokenFromHeader) throws NoAuthorizationException {
 
-    if (userRepository.existsByLogin(userRepository.findByToken(tokenFromHeader).getLogin())) {
+    if (userRepository.existsByToken(tokenFromHeader)) {
       return true;
 
     } else {
@@ -38,12 +38,13 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public boolean loginUser(User toLogin) throws UserNotFoundException {
+  public String loginUser(User toLogin) throws UserNotFoundException {
 
-    boolean result = false;
     User fromDb;
+    String generatedToken = null;
 
-    try {
+    if (userRepository.findByLogin(toLogin.getLogin()) != null) {
+
       fromDb = userRepository.findByLogin(toLogin.getLogin());
 
       boolean isPassCorrect =
@@ -51,17 +52,18 @@ public class AuthServiceImpl implements AuthService {
       boolean isLoginCorrect = fromDb.getLogin().equals(toLogin.getLogin());
 
       if (isPassCorrect && isLoginCorrect) {
-        fromDb.setToken(UUID.randomUUID().toString());
+        generatedToken = UUID.randomUUID().toString();
+        fromDb.setToken(generatedToken);
         userRepository.save(fromDb);
-
-        result = true;
       }
 
-    } catch (Exception exception) {
+    } else {
       throw new UserNotFoundException("Incorrect data or user does not exist");
     }
-    return result;
+
+    return generatedToken;
   }
+
 
   @Override
   public UserDto registerUser(User toRegister) throws UserAlreadyExistsException {

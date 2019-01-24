@@ -9,11 +9,11 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByLogin(String login);
+  User findByLogin(String login);
 
-    User findByToken(String token);
+  User findByToken(String token);
 
-    boolean existsByLogin(String login);
+  boolean existsByLogin(String login);
 
-
+  boolean existsByToken(String token);
 }

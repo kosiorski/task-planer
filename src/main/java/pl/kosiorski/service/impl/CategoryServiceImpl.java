@@ -19,10 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
   private final UserRepository userRepository;
 
   @Autowired
-  public CategoryServiceImpl(
-      CategoryRepository categoryRepository,
-      UserRepository userRepository,
-      UserService userService) {
+  public CategoryServiceImpl(CategoryRepository categoryRepository, UserRepository userRepository) {
     this.categoryRepository = categoryRepository;
     this.userRepository = userRepository;
   }
