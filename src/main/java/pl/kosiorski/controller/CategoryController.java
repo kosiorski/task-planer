@@ -40,7 +40,7 @@ public class CategoryController {
         allCategoriesDto = categoryService.findAllByUserId(userService.findByToken(token).getId());
       }
     } catch (NoAuthorizationException e) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
     return allCategoriesDto;
   }
