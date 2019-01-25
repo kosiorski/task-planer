@@ -9,7 +9,7 @@ Used stack:
 * Project Lombok
 * MySql
 * Orika
-+ Swagger
+* Swagger
 
 Features:
 * Login
