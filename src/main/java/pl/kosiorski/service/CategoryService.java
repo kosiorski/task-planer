@@ -16,8 +16,4 @@ public interface CategoryService {
   CategoryDto updateById(Long id, Category category);
 
   List<CategoryDto> findAllByUserId(Long id);
-
-
-
-
 }
