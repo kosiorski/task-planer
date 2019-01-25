@@ -8,6 +8,8 @@ Used stack:
 * Hibernate
 * Project Lombok
 * MySql
+* Orika
++ Swagger
 
 Features:
 * Login
