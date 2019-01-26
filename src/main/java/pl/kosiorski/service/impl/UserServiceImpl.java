@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByToken(token);
   }
 
+
   @Override
   public void generateNewToken(String token) {
 
@@ -30,5 +31,4 @@ public class UserServiceImpl implements UserService {
     fromToken.setToken(UUID.randomUUID().toString());
     userRepository.save(fromToken);
   }
-
 }

@@ -7,6 +7,4 @@ public interface UserService {
   User findByToken(String token);
 
   void generateNewToken(String token);
-
-
 }

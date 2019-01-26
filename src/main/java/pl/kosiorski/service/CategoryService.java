@@ -1,19 +1,21 @@
 package pl.kosiorski.service;
 
+import org.hibernate.ObjectNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import pl.kosiorski.dto.CategoryDto;
-import pl.kosiorski.model.Category;
+import pl.kosiorski.model.User;
 
 import java.util.List;
 
 public interface CategoryService {
 
-  void save(Category category, String token);
+  CategoryDto save(CategoryDto categoryDto, User user);
 
-  CategoryDto findById(Long id);
+  void delete(Long id) throws EmptyResultDataAccessException;
 
-  String removeById(Long id);
+  CategoryDto findById(Long id) throws ObjectNotFoundException;
 
-  CategoryDto updateById(Long id, Category category);
+  CategoryDto update(CategoryDto categoryDto, User user);
 
-  List<CategoryDto> findAllByUserId(Long id);
+  List<CategoryDto> findAll();
 }

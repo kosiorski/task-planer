@@ -3,6 +3,7 @@ package pl.kosiorski.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.kosiorski.dto.UserDto;
+import pl.kosiorski.exception.NoAuthenticationException;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
@@ -34,8 +35,8 @@ public class HomeController {
   }
 
   @PostMapping("/valid")
-  public boolean valid(@RequestHeader("Authorization") String token) throws NoAuthorizationException {
+  public boolean valid(@RequestHeader("Authorization") String token) throws NoAuthenticationException {
 
-    return authService.valid(token);
+    return authService.validateToken(token);
   }
 }
