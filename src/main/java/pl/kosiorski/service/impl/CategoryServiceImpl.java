@@ -1,60 +1,80 @@
 package pl.kosiorski.service.impl;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.CategoryDto;
 import pl.kosiorski.model.Category;
+import pl.kosiorski.model.User;
+import pl.kosiorski.model.mapper.CategoryMapper;
 import pl.kosiorski.repository.CategoryRepository;
-import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.CategoryService;
-import pl.kosiorski.service.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
-  private final UserRepository userRepository;
+  private final CategoryMapper categoryMapper;
 
   @Autowired
-  public CategoryServiceImpl(CategoryRepository categoryRepository, UserRepository userRepository) {
+  public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
     this.categoryRepository = categoryRepository;
-    this.userRepository = userRepository;
+    this.categoryMapper = categoryMapper;
   }
 
   @Override
-  public void save(Category category, String token) {
+  public CategoryDto save(CategoryDto categoryDto, User user) {
+    if (categoryDto != null) {
 
-    category.setUser(userRepository.findByToken(token));
-    categoryRepository.save(category);
+      Category category = categoryMapper.map(categoryDto, Category.class);
+      category.setUser(user);
+      Category categorySaved = categoryRepository.save(category);
+      if (categorySaved != null) {
+        return categoryMapper.map(categorySaved, CategoryDto.class);
+      }
+    }
+    return null;
   }
 
   @Override
-  public CategoryDto findById(Long id) {
-    return categoryRepository.findById(id).get().toCategoryDto();
-  }
+  @Transactional(readOnly = true)
+  public CategoryDto findById(Long id) throws ObjectNotFoundException {
 
-  @Override
-  public String removeById(Long id) {
-    if (categoryRepository.removeById(id)) {
-      return "Deleted " + id.toString();
+    Optional<Category> category = categoryRepository.findById(id);
+
+    if (category.isPresent()) {
+      return categoryMapper.map(category.get(), CategoryDto.class);
     } else {
-      return "Not Deleted ";
+      throw new ObjectNotFoundException(id, "Category not found");
     }
   }
 
   @Override
-  public CategoryDto updateById(Long id, Category category) {
-    Category byId = categoryRepository.findById(id).get();
-    categoryRepository.save(byId);
-    return categoryRepository.save(byId).toCategoryDto();
+  public CategoryDto update(CategoryDto categoryDto, User user) {
+    if (categoryDto != null) {
+
+      Category categoryToUpdate = categoryMapper.map(categoryDto, Category.class);
+      categoryToUpdate.setUser(user);
+      Category updated = categoryRepository.save(categoryToUpdate);
+      return categoryMapper.map(updated, CategoryDto.class);
+    }
+    return null;
   }
 
   @Override
-  public List<CategoryDto> findAllByUserId(Long id) {
-    List<Category> categories = categoryRepository.findAllByUserId(id);
-    return categories.stream().map(Category::toCategoryDto).collect(Collectors.toList());
+  public List<CategoryDto> findAll() {
+    List<Category> allCategories = categoryRepository.findAll();
+    return categoryMapper.mapAsList(allCategories, CategoryDto.class);
+  }
+
+  @Override
+  public void delete(Long id) throws EmptyResultDataAccessException {
+
+    categoryRepository.deleteById(id);
   }
 }

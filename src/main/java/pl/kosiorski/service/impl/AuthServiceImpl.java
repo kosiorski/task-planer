@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.kosiorski.dto.UserDto;
+import pl.kosiorski.exception.NoAuthenticationException;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
@@ -27,13 +28,13 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public boolean valid(String tokenFromHeader) throws NoAuthorizationException {
+  public boolean validateToken(String tokenFromHeader) throws NoAuthenticationException {
 
     if (userRepository.existsByToken(tokenFromHeader)) {
       return true;
 
     } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+      throw new NoAuthenticationException("You dont have authentication, try to login");
     }
   }
 

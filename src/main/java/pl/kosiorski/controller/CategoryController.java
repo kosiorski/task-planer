@@ -1,12 +1,13 @@
 package pl.kosiorski.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.CategoryDto;
-import pl.kosiorski.exception.NoAuthorizationException;
-import pl.kosiorski.model.Category;
+import pl.kosiorski.exception.NoAuthenticationException;
 import pl.kosiorski.service.AuthService;
 import pl.kosiorski.service.CategoryService;
 import pl.kosiorski.service.UserService;
@@ -33,68 +34,72 @@ public class CategoryController {
   @GetMapping("")
   public List<CategoryDto> getAll(@RequestHeader("Authorization") String token) {
 
-    List<CategoryDto> allCategoriesDto = null;
-
     try {
-      if (authService.valid(token)) {
-        allCategoriesDto = categoryService.findAllByUserId(userService.findByToken(token).getId());
+      if (authService.validateToken(token)) {
+        return categoryService.findAll();
       }
-    } catch (NoAuthorizationException e) {
+    } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
-    return allCategoriesDto;
+    return null;
   }
 
   @GetMapping("/{id}")
-  public CategoryDto getOne(@PathVariable Long id, @RequestHeader("Authorization") String token)
-      throws NoAuthorizationException {
+  public CategoryDto getOne(@PathVariable Long id, @RequestHeader("Authorization") String token) {
 
-    if (authService.valid(token)) {
-      return categoryService.findById(id);
-
-    } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+    try {
+      if (authService.validateToken(token)) {
+        return categoryService.findById(id);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
+    return null;
   }
 
   @PostMapping("")
   public CategoryDto save(
-      @RequestBody @Valid Category category, @RequestHeader("Authorization") String token)
-      throws NoAuthorizationException {
+      @RequestBody @Valid CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
 
-    if (authService.valid(token)) {
-
-      categoryService.save(category, token);
-      return category.toCategoryDto();
-
-    } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+    try {
+      if (authService.validateToken(token)) {
+        return categoryService.save(categoryDto, userService.findByToken(token));
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
+    return null;
   }
 
   @DeleteMapping("/{id}")
-  public String delete(@PathVariable Long id, @RequestHeader("Authorization") String token)
-      throws NoAuthorizationException {
-    if (authService.valid(token)) {
-      return categoryService.removeById(id);
+  public ResponseEntity delete(
+      @PathVariable Long id, @RequestHeader("Authorization") String token) {
+    try {
+      if (authService.validateToken(token)) {
+        categoryService.delete(id);
+        return new ResponseEntity(HttpStatus.OK);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
-    } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+    } catch (EmptyResultDataAccessException e) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
     }
+    return null;
   }
 
-  @PutMapping("/{id}")
+  @PutMapping("")
   public CategoryDto updade(
-      @PathVariable Long id,
-      @Valid @RequestBody Category category,
-      @RequestHeader("Authorization") String token)
-      throws NoAuthorizationException {
+      @Valid @RequestBody CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
 
-    if (authService.valid(token)) {
-      return categoryService.updateById(id, category);
-
-    } else {
-      throw new NoAuthorizationException("You dont have authorization, try to login");
+    try {
+      if (authService.validateToken(token)) {
+        return categoryService.update(categoryDto, userService.findByToken(token));
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
+    return null;
   }
 }
