@@ -1,6 +1,10 @@
 package pl.kosiorski.dto;
 
 import lombok.Data;
+import pl.kosiorski.model.Category;
+import pl.kosiorski.model.Task;
+
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -11,5 +15,7 @@ public class UserDto {
 
   private String email;
 
-  private String token;
+  private List<Task> tasks;
+
+  private List<Category> categories;
 }

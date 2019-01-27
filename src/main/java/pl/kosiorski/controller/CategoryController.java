@@ -1,5 +1,6 @@
 package pl.kosiorski.controller;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -32,11 +33,11 @@ public class CategoryController {
   }
 
   @GetMapping("")
-  public List<CategoryDto> getAll(@RequestHeader("Authorization") String token) {
+  public List<CategoryDto> getAllByUserToken(@RequestHeader("Authorization") String token) {
 
     try {
       if (authService.validateToken(token)) {
-        return categoryService.findAll();
+        return categoryService.findAllByUser(token);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
@@ -45,14 +46,16 @@ public class CategoryController {
   }
 
   @GetMapping("/{id}")
-  public CategoryDto getOne(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+  public CategoryDto getOneByUserToken(@PathVariable Long id, @RequestHeader("Authorization") String token) {
 
     try {
       if (authService.validateToken(token)) {
-        return categoryService.findById(id);
+        return categoryService.findOneByUserAndCategoryId(token, id);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
     }
     return null;
   }
