@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public List<CategoryDto> findAllByUser(String token) {
+  public List<CategoryDto> findAllByUserToken(String token) {
     List<Category> allByUser = categoryRepository.findAllByUser(userRepository.findByToken(token));
     return categoryMapper.mapAsList(allByUser, CategoryDto.class);
   }

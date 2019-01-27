@@ -10,6 +10,7 @@ import pl.kosiorski.service.TaskService;
 import pl.kosiorski.service.UserService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -34,6 +35,18 @@ public class TaskController {
         return taskService.save(userService.findByToken(token), taskDto);
       }
 
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    }
+    return null;
+  }
+
+  @GetMapping
+  public List<TaskDto> getAllByUserToken(@RequestHeader("Authorization") String token) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.findAllByUserToken(token);
+      }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }

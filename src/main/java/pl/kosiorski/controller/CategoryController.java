@@ -37,7 +37,7 @@ public class CategoryController {
 
     try {
       if (authService.validateToken(token)) {
-        return categoryService.findAllByUser(token);
+        return categoryService.findAllByUserToken(token);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);

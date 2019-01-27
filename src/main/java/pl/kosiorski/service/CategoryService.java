@@ -19,5 +19,5 @@ public interface CategoryService {
 
   List<CategoryDto> findAll();
 
-  List<CategoryDto> findAllByUser(String token);
+  List<CategoryDto> findAllByUserToken(String token);
 }

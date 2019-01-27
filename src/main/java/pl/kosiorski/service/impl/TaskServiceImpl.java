@@ -12,6 +12,8 @@ import pl.kosiorski.repository.TaskRepository;
 import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.TaskService;
 
+import java.util.List;
+
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -27,16 +29,6 @@ public class TaskServiceImpl implements TaskService {
     this.userRepository = userRepository;
   }
 
-  //  @Override
-  //  public Task save(TaskDto taskDto) {
-  //    Task toSave = taskDto.toSave();
-  //    // TODO category
-  //    // TODO current user
-  //    toSave.setPriority("HIGH");
-  //    toSave.setStatus("ACTIVE");
-  //    return taskRepository.save(toSave);
-  //  }
-
   @Override
   public TaskDto save(User user, TaskDto taskDto) {
 
@@ -51,6 +43,13 @@ public class TaskServiceImpl implements TaskService {
       return taskMapper.map(taskSaved, TaskDto.class);
     }
     return null;
+  }
+
+  @Override
+  public List<TaskDto> findAllByUserToken(String token) {
+
+    List<Task> tasks = taskRepository.findByUser(userRepository.findByToken(token));
+    return taskMapper.mapAsList(tasks, TaskDto.class);
   }
 
   //

@@ -8,6 +8,8 @@ import java.util.List;
 public interface TaskService {
 
   TaskDto save(User user, TaskDto taskDto);
+
+  List<TaskDto> findAllByUserToken(String token);
   //
   //  List<TaskDto> getAll();
   //
