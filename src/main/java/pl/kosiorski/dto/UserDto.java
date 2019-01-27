@@ -1,34 +1,21 @@
 package pl.kosiorski.dto;
 
 import lombok.Data;
-import pl.kosiorski.model.User;
+import pl.kosiorski.model.Category;
+import pl.kosiorski.model.Task;
+
+import java.util.List;
 
 @Data
 public class UserDto {
 
+  private Long id;
 
-    private String login;
+  private String login;
 
-    private String email;
+  private String email;
 
-    private String token;
+  private List<Task> tasks;
 
-
-    public User toUser() {
-        User user = new User();
-        user.setLogin(login);
-        user.setEmail(email);
-        return user;
-    }
-
-    public User toSave() {
-        User user = new User();
-        user.setLogin(login);
-        user.setEmail(email);
-        return user;
-    }
-
-
-
-
+  private List<Category> categories;
 }

@@ -3,7 +3,8 @@ package pl.kosiorski.model;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import pl.kosiorski.dto.TaskDto;
+import pl.kosiorski.model.enums.PriorityEnum;
+import pl.kosiorski.model.enums.StatusEnum;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -28,9 +29,9 @@ public class Task {
 
   @UpdateTimestamp private LocalDateTime updated;
 
-  private String priority;
+  private PriorityEnum priority;
 
-  private String status;
+  private StatusEnum status;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
@@ -38,13 +39,4 @@ public class Task {
 
   @OneToMany(mappedBy = "task")
   private List<Comment> comments;
-
-
-
-  public TaskDto toTaskDto(){
-    TaskDto taskDto = new TaskDto();
-    taskDto.setName(name);
-    taskDto.setDescription(description);
-    return taskDto;
-  }
 }

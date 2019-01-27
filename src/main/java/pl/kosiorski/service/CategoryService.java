@@ -13,9 +13,11 @@ public interface CategoryService {
 
   void delete(Long id) throws EmptyResultDataAccessException;
 
-  CategoryDto findById(Long id) throws ObjectNotFoundException;
+  CategoryDto findOneByUserAndCategoryId(String token, Long categoryId) throws ObjectNotFoundException;
 
   CategoryDto update(CategoryDto categoryDto, User user);
 
   List<CategoryDto> findAll();
+
+  List<CategoryDto> findAllByUserToken(String token);
 }

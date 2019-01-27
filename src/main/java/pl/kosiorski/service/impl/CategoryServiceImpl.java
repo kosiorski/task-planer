@@ -10,6 +10,7 @@ import pl.kosiorski.model.Category;
 import pl.kosiorski.model.User;
 import pl.kosiorski.model.mapper.CategoryMapper;
 import pl.kosiorski.repository.CategoryRepository;
+import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.CategoryService;
 
 import java.util.List;
@@ -20,15 +21,21 @@ public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
+  private final UserRepository userRepository;
 
   @Autowired
-  public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+  public CategoryServiceImpl(
+      CategoryRepository categoryRepository,
+      CategoryMapper categoryMapper,
+      UserRepository userRepository) {
     this.categoryRepository = categoryRepository;
     this.categoryMapper = categoryMapper;
+    this.userRepository = userRepository;
   }
 
   @Override
   public CategoryDto save(CategoryDto categoryDto, User user) {
+
     if (categoryDto != null) {
 
       Category category = categoryMapper.map(categoryDto, Category.class);
@@ -43,14 +50,16 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   @Transactional(readOnly = true)
-  public CategoryDto findById(Long id) throws ObjectNotFoundException {
+  public CategoryDto findOneByUserAndCategoryId(String token, Long categoryId)
+      throws ObjectNotFoundException {
 
-    Optional<Category> category = categoryRepository.findById(id);
+    Category category =
+        categoryRepository.findByUserAndId(userRepository.findByToken(token), categoryId);
 
-    if (category.isPresent()) {
-      return categoryMapper.map(category.get(), CategoryDto.class);
+    if (category != null) {
+      return categoryMapper.map(category, CategoryDto.class);
     } else {
-      throw new ObjectNotFoundException(id, "Category not found");
+      throw new ObjectNotFoundException(categoryId, "Category not found");
     }
   }
 
@@ -73,8 +82,13 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public void delete(Long id) throws EmptyResultDataAccessException {
+  public List<CategoryDto> findAllByUserToken(String token) {
+    List<Category> allByUser = categoryRepository.findAllByUser(userRepository.findByToken(token));
+    return categoryMapper.mapAsList(allByUser, CategoryDto.class);
+  }
 
+  @Override
+  public void delete(Long id) throws EmptyResultDataAccessException {
     categoryRepository.deleteById(id);
   }
 }

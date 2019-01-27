@@ -1,7 +1,6 @@
 package pl.kosiorski.model;
 
 import lombok.Data;
-import pl.kosiorski.dto.UserDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -36,17 +35,4 @@ public class User {
   private boolean active;
 
   private String token;
-
-  public UserDto toUserDto() {
-    UserDto user = new UserDto();
-
-    user.setLogin(login);
-    user.setEmail(email);
-
-    return user;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
 }

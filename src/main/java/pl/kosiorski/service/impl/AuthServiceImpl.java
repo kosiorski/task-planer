@@ -5,10 +5,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.kosiorski.dto.UserDto;
 import pl.kosiorski.exception.NoAuthenticationException;
-import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
 import pl.kosiorski.model.User;
+import pl.kosiorski.model.mapper.UserMapper;
 import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.AuthService;
 
@@ -18,13 +18,17 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
+  private final UserMapper userMapper;
   private BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
   public AuthServiceImpl(
-      BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
+      BCryptPasswordEncoder bCryptPasswordEncoder,
+      UserRepository userRepository,
+      UserMapper userMapper) {
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     this.userRepository = userRepository;
+    this.userMapper = userMapper;
   }
 
   @Override
@@ -65,7 +69,6 @@ public class AuthServiceImpl implements AuthService {
     return generatedToken;
   }
 
-
   @Override
   public UserDto registerUser(User toRegister) throws UserAlreadyExistsException {
 
@@ -80,6 +83,6 @@ public class AuthServiceImpl implements AuthService {
     } else {
       throw new UserAlreadyExistsException("User with that login already exists");
     }
-    return toRegister.toUserDto();
+    return userMapper.map(toRegister, UserDto.class);
   }
 }

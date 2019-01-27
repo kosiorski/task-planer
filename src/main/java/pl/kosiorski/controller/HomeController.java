@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.kosiorski.dto.UserDto;
 import pl.kosiorski.exception.NoAuthenticationException;
-import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.exception.UserAlreadyExistsException;
 import pl.kosiorski.exception.UserNotFoundException;
 import pl.kosiorski.model.User;
