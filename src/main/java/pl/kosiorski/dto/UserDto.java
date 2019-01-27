@@ -1,34 +1,15 @@
 package pl.kosiorski.dto;
 
 import lombok.Data;
-import pl.kosiorski.model.User;
 
 @Data
 public class UserDto {
 
+  private Long id;
 
-    private String login;
+  private String login;
 
-    private String email;
+  private String email;
 
-    private String token;
-
-
-    public User toUser() {
-        User user = new User();
-        user.setLogin(login);
-        user.setEmail(email);
-        return user;
-    }
-
-    public User toSave() {
-        User user = new User();
-        user.setLogin(login);
-        user.setEmail(email);
-        return user;
-    }
-
-
-
-
+  private String token;
 }
