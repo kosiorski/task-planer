@@ -35,6 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public CategoryDto save(CategoryDto categoryDto, User user) {
+
     if (categoryDto != null) {
 
       Category category = categoryMapper.map(categoryDto, Category.class);
