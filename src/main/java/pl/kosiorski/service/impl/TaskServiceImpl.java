@@ -1,5 +1,6 @@
 package pl.kosiorski.service.impl;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.kosiorski.dto.TaskDto;
@@ -50,6 +51,15 @@ public class TaskServiceImpl implements TaskService {
 
     List<Task> tasks = taskRepository.findByUser(userRepository.findByToken(token));
     return taskMapper.mapAsList(tasks, TaskDto.class);
+  }
+
+  @Override
+  public TaskDto findOneByUserAndTaskId(String token, Long taskId) {
+    Task task = taskRepository.findByUserAndId(userRepository.findByToken(token), taskId);
+
+    if (task != null) {
+      return taskMapper.map(task, TaskDto.class);
+    } else throw new ObjectNotFoundException(taskId, "Task not found");
   }
 
   //

@@ -1,5 +1,6 @@
 package pl.kosiorski.controller;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,6 +20,7 @@ public class TaskController {
   private final TaskService taskService;
   private final AuthService authService;
   private final UserService userService;
+  private final String HEADER_KEY = "Authorization";
 
   public TaskController(TaskService taskService, AuthService authService, UserService userService) {
     this.taskService = taskService;
@@ -28,7 +30,7 @@ public class TaskController {
 
   @PostMapping
   public TaskDto save(
-      @Valid @RequestBody TaskDto taskDto, @RequestHeader("Authorization") String token) {
+      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
 
     try {
       if (authService.validateToken(token)) {
@@ -42,13 +44,27 @@ public class TaskController {
   }
 
   @GetMapping
-  public List<TaskDto> getAllByUserToken(@RequestHeader("Authorization") String token) {
+  public List<TaskDto> getAllByUserToken(@RequestHeader(HEADER_KEY) String token) {
     try {
       if (authService.validateToken(token)) {
         return taskService.findAllByUserToken(token);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    }
+    return null;
+  }
+
+  @GetMapping("/{id}")
+  public TaskDto getOneByUserToken(@RequestHeader(HEADER_KEY) String token, @PathVariable Long id) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.findOneByUserAndTaskId(token, id);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
     }
     return null;
   }
