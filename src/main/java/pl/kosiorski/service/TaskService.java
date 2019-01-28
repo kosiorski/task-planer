@@ -1,5 +1,7 @@
 package pl.kosiorski.service;
 
+import org.hibernate.ObjectNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import pl.kosiorski.dto.TaskDto;
 import pl.kosiorski.model.User;
 
@@ -10,12 +12,10 @@ public interface TaskService {
   TaskDto save(User user, TaskDto taskDto);
 
   List<TaskDto> findAllByUserToken(String token);
-  //
-  //  List<TaskDto> getAll();
-  //
-  //  TaskDto findById(Long id);
-  //
-  //  String removeById(Long id);
-  //
-  //  TaskDto updateById(Long id, TaskDto taskDto);
+
+  TaskDto findOneByUserAndTaskId(String token, Long taksId) throws ObjectNotFoundException;
+
+  TaskDto update(TaskDto taskDto, User user);
+
+  void deleteById(Long id) throws EmptyResultDataAccessException;
 }

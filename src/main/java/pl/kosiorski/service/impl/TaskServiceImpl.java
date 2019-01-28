@@ -1,7 +1,10 @@
 package pl.kosiorski.service.impl;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.TaskDto;
 import pl.kosiorski.model.Task;
 import pl.kosiorski.model.User;
@@ -52,34 +55,31 @@ public class TaskServiceImpl implements TaskService {
     return taskMapper.mapAsList(tasks, TaskDto.class);
   }
 
-  //
-  //  @Override
-  //  public List<TaskDto> getAll() {
-  //    List<Task> tasks = taskRepository.findAll();
-  //    return tasks.stream().map(Task::toTaskDto).collect(Collectors.toList());
-  //  }
-  //
-  //  @Override
-  //  public TaskDto findById(Long id) {
-  //    Task task = taskRepository.findById(id);
-  //    return task.toTaskDto();
-  //  }
-  //
-  //  @Override
-  //  public String removeById(Long id) {
-  //    Task taskById = taskRepository.findById(id);
-  //    taskRepository.delete(taskById);
-  //    return "SUCCESS";
-  //  }
-  //
-  //  @Override
-  //  public TaskDto updateById(Long id, TaskDto taskDto) {
-  //    Task byId = taskRepository.findById(id);
-  //    byId.setName(taskDto.getName());
-  //    byId.setDescription(taskDto.getDescription());
-  //    byId.setUpdated(LocalDateTime.now());
-  //    taskRepository.save(byId);
-  //
-  //    return byId.toTaskDto();
-  //  }
+  @Override
+  @Transactional(readOnly = true)
+  public TaskDto findOneByUserAndTaskId(String token, Long taskId) throws ObjectNotFoundException {
+    Task task = taskRepository.findByUserAndId(userRepository.findByToken(token), taskId);
+
+    if (task != null) {
+      return taskMapper.map(task, TaskDto.class);
+    } else throw new ObjectNotFoundException(taskId, "Task not found");
+  }
+
+  @Override
+  public TaskDto update(TaskDto taskDto, User user) {
+    if (taskDto != null) {
+
+      Task taskToUpdate = taskMapper.map(taskDto, Task.class);
+      taskToUpdate.setUser(user);
+      Task updated = taskRepository.save(taskToUpdate);
+      return taskMapper.map(updated, TaskDto.class);
+    }
+    return null;
+  }
+
+  @Override
+  @Transactional
+  public void deleteById(Long id) throws EmptyResultDataAccessException {
+    taskRepository.deleteById(id);
+  }
 }

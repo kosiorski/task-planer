@@ -46,7 +46,8 @@ public class CategoryController {
   }
 
   @GetMapping("/{id}")
-  public CategoryDto getOneByUserToken(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+  public CategoryDto getOneByUserToken(
+      @RequestHeader("Authorization") String token, @PathVariable Long id) {
 
     try {
       if (authService.validateToken(token)) {
@@ -73,6 +74,9 @@ public class CategoryController {
     }
     return null;
   }
+
+  // TODO block the possibility of deleting categories of other users
+
 
   @DeleteMapping("/{id}")
   public ResponseEntity delete(

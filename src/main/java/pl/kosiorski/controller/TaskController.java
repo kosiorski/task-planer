@@ -1,6 +1,9 @@
 package pl.kosiorski.controller;
 
+import org.hibernate.ObjectNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.TaskDto;
@@ -19,6 +22,7 @@ public class TaskController {
   private final TaskService taskService;
   private final AuthService authService;
   private final UserService userService;
+  private final String HEADER_KEY = "Authorization";
 
   public TaskController(TaskService taskService, AuthService authService, UserService userService) {
     this.taskService = taskService;
@@ -26,9 +30,35 @@ public class TaskController {
     this.userService = userService;
   }
 
+  @GetMapping
+  public List<TaskDto> getAllByUserToken(@RequestHeader(HEADER_KEY) String token) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.findAllByUserToken(token);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    }
+    return null;
+  }
+
+  @GetMapping("/{id}")
+  public TaskDto getOneByUserToken(@RequestHeader(HEADER_KEY) String token, @PathVariable Long id) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.findOneByUserAndTaskId(token, id);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
+    }
+    return null;
+  }
+
   @PostMapping
   public TaskDto save(
-      @Valid @RequestBody TaskDto taskDto, @RequestHeader("Authorization") String token) {
+      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
 
     try {
       if (authService.validateToken(token)) {
@@ -41,44 +71,35 @@ public class TaskController {
     return null;
   }
 
-  @GetMapping
-  public List<TaskDto> getAllByUserToken(@RequestHeader("Authorization") String token) {
+  // TODO block the possibility of deleting tasks of other users
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity delete(@PathVariable Long id, @RequestHeader(HEADER_KEY) String token) {
     try {
       if (authService.validateToken(token)) {
-        return taskService.findAllByUserToken(token);
+        taskService.deleteById(id);
+        return new ResponseEntity(HttpStatus.OK);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
+    } catch (EmptyResultDataAccessException e) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
+    }
+    return null;
+  }
+
+  @PutMapping
+  public TaskDto updade(
+      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.update(taskDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
     return null;
   }
-
-  //
-  //  @GetMapping("")
-  //  public List<TaskDto> getAll() {
-  //    return taskService.getAll();
-  //  }
-  //
-  //  @GetMapping("/{id}")
-  //  public TaskDto getOne(@PathVariable Long id) {
-  //    return taskService.findById(id);
-  //  }
-  //
-  //  @PostMapping("")
-  //  public TaskDto save(@RequestBody @Valid TaskDto taskDto) {
-  //
-  //    taskService.save(taskDto);
-  //    return taskDto;
-  //  }
-  //
-  //  @DeleteMapping("/{id}")
-  //  public String delete(@PathVariable Long id) {
-  //    return taskService.removeById(id);
-  //  }
-  //
-  //  @PutMapping("/{id}")
-  //  public TaskDto updade(@PathVariable Long id, @Valid @RequestBody TaskDto taskDto){
-  //      return taskService.updateById(id, taskDto);
-  //  }
-
 }
