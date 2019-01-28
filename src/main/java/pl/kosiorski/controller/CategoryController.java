@@ -75,6 +75,9 @@ public class CategoryController {
     return null;
   }
 
+  // TODO block the possibility of deleting categories of other users
+
+
   @DeleteMapping("/{id}")
   public ResponseEntity delete(
       @PathVariable Long id, @RequestHeader("Authorization") String token) {
