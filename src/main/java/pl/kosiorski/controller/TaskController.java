@@ -1,7 +1,9 @@
 package pl.kosiorski.controller;
 
 import org.hibernate.ObjectNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.TaskDto;
@@ -26,21 +28,6 @@ public class TaskController {
     this.taskService = taskService;
     this.authService = authService;
     this.userService = userService;
-  }
-
-  @PostMapping
-  public TaskDto save(
-      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
-
-    try {
-      if (authService.validateToken(token)) {
-        return taskService.save(userService.findByToken(token), taskDto);
-      }
-
-    } catch (NoAuthenticationException e) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
-    }
-    return null;
   }
 
   @GetMapping
@@ -69,32 +56,50 @@ public class TaskController {
     return null;
   }
 
-  //
-  //  @GetMapping("")
-  //  public List<TaskDto> getAll() {
-  //    return taskService.getAll();
-  //  }
-  //
-  //  @GetMapping("/{id}")
-  //  public TaskDto getOne(@PathVariable Long id) {
-  //    return taskService.findById(id);
-  //  }
-  //
-  //  @PostMapping("")
-  //  public TaskDto save(@RequestBody @Valid TaskDto taskDto) {
-  //
-  //    taskService.save(taskDto);
-  //    return taskDto;
-  //  }
-  //
-  //  @DeleteMapping("/{id}")
-  //  public String delete(@PathVariable Long id) {
-  //    return taskService.removeById(id);
-  //  }
-  //
-  //  @PutMapping("/{id}")
-  //  public TaskDto updade(@PathVariable Long id, @Valid @RequestBody TaskDto taskDto){
-  //      return taskService.updateById(id, taskDto);
-  //  }
+  @PostMapping
+  public TaskDto save(
+      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
 
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.save(userService.findByToken(token), taskDto);
+      }
+
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    }
+    return null;
+  }
+
+  // TODO block the possibility of deleting tasks of other users
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity delete(@PathVariable Long id, @RequestHeader(HEADER_KEY) String token) {
+    try {
+      if (authService.validateToken(token)) {
+        taskService.deleteById(id);
+        return new ResponseEntity(HttpStatus.OK);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
+    } catch (EmptyResultDataAccessException e) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
+    }
+    return null;
+  }
+
+  @PutMapping
+  public TaskDto updade(
+      @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
+    try {
+      if (authService.validateToken(token)) {
+        return taskService.update(taskDto, userService.findByToken(token));
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+    }
+    return null;
+  }
 }
