@@ -75,7 +75,7 @@ public class CategoryController {
     return null;
   }
 
-  // TODO block the possibility of deleting categories of other users
+  // TODO fix statuses
 
 
   @DeleteMapping("/{id}")
@@ -83,7 +83,7 @@ public class CategoryController {
       @PathVariable Long id, @RequestHeader("Authorization") String token) {
     try {
       if (authService.validateToken(token)) {
-        categoryService.delete(id);
+        categoryService.delete(userService.findByToken(token), id);
         return new ResponseEntity(HttpStatus.OK);
       }
     } catch (NoAuthenticationException e) {

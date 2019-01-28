@@ -11,7 +11,7 @@ public interface CategoryService {
 
   CategoryDto save(CategoryDto categoryDto, User user);
 
-  void delete(Long id) throws EmptyResultDataAccessException;
+  void delete(User user, Long id) throws EmptyResultDataAccessException;
 
   CategoryDto findOneByUserAndCategoryId(String token, Long categoryId) throws ObjectNotFoundException;
 

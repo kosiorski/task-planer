@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional
   public CategoryDto findOneByUserAndCategoryId(String token, Long categoryId)
       throws ObjectNotFoundException {
 
@@ -87,7 +87,8 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public void delete(Long id) throws EmptyResultDataAccessException {
-    categoryRepository.deleteById(id);
+  @Transactional
+  public void delete(User user, Long id) throws EmptyResultDataAccessException {
+    categoryRepository.deleteByUserAndId(user, id);
   }
 }
