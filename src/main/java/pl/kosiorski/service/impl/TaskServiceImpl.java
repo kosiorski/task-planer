@@ -16,7 +16,6 @@ import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.TaskService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TaskServiceImpl implements TaskService {

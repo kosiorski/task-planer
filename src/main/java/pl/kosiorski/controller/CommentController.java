@@ -24,15 +24,15 @@ public class CommentController {
     this.taskService = taskService;
   }
 
-  @PostMapping("/{id}/comments")
+  @PostMapping("/{taskId}/comments")
   public CommentDto save(
       @RequestBody @Valid CommentDto commentDto,
-      @PathVariable Long id,
+      @PathVariable Long taskId,
       @RequestHeader("Authorization") String token) {
 
     try {
       if (authService.validateToken(token)) {
-        return commentService.save(commentDto, taskService.find);
+        return commentService.save(commentDto, taskService.findOneByTaskId(taskId));
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
