@@ -7,7 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.CommentDto;
 import pl.kosiorski.exception.NoAuthenticationException;
 import pl.kosiorski.service.AuthService;
-import pl.kosiorski.service.TaskService;
+import pl.kosiorski.service.CommentService;
 
 import javax.validation.Valid;
 
@@ -16,12 +16,12 @@ import javax.validation.Valid;
 public class CommentController {
 
   private final AuthService authService;
-  private final TaskService taskService;
+  private final CommentService commentService;
 
   @Autowired
-  public CommentController(AuthService authService, TaskService taskService) {
+  public CommentController(AuthService authService, CommentService commentService) {
     this.authService = authService;
-    this.taskService = taskService;
+    this.commentService = commentService;
   }
 
   @PostMapping("/{taskId}/comments")
@@ -32,7 +32,7 @@ public class CommentController {
 
     try {
       if (authService.validateToken(token)) {
-        return commentService.save(commentDto, taskService.findOneByTaskId(taskId));
+        return commentService.save(commentDto, taskId);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);

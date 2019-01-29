@@ -37,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
       throw new ObjectNotFoundException(taskId, "Task not found");
     }
     Comment commentToSave = commentMapper.map(commentDto, Comment.class);
+    commentToSave.setTask(task);
     Comment savedComment = commentRepository.save(commentToSave);
 
     return commentMapper.map(savedComment, CommentDto.class);
