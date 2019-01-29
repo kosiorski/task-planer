@@ -1,3 +1,8 @@
 package pl.kosiorski.service;
 
-public interface CommentService {}
+import pl.kosiorski.dto.CommentDto;
+
+public interface CommentService {
+
+  CommentDto save(CommentDto commentDto, Long taskId);
+}

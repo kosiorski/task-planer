@@ -48,6 +48,18 @@ public class TaskServiceImpl implements TaskService {
     return null;
   }
 
+
+
+  @Override
+  public TaskDto findOneByTaskId(Long taskId) throws ObjectNotFoundException {
+
+    Task task = taskRepository.findById(taskId);
+    if (task == null) {
+      throw new ObjectNotFoundException(taskId, "Task not found");
+    }
+    return taskMapper.map(task, TaskDto.class);
+  }
+
   @Override
   public List<TaskDto> findAllByUserToken(String token) {
 
