@@ -96,7 +96,7 @@ public class CategoryController {
     return null;
   }
 
-  @PutMapping("")
+  @PutMapping()
   public CategoryDto updade(
       @Valid @RequestBody CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
 
@@ -109,4 +109,5 @@ public class CategoryController {
     }
     return null;
   }
+
 }
