@@ -1,9 +1,13 @@
 package pl.kosiorski.service.impl;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.kosiorski.dto.CommentDto;
+import pl.kosiorski.model.Comment;
 import pl.kosiorski.model.Task;
+import pl.kosiorski.model.mapper.CommentMapper;
+import pl.kosiorski.repository.CommentRepository;
 import pl.kosiorski.repository.TaskRepository;
 import pl.kosiorski.service.CommentService;
 
@@ -11,14 +15,30 @@ import pl.kosiorski.service.CommentService;
 public class CommentServiceImpl implements CommentService {
 
   private final TaskRepository taskRepository;
+  private final CommentRepository commentRepository;
+  private final CommentMapper commentMapper;
 
   @Autowired
-  public CommentServiceImpl(TaskRepository taskRepository) {
+  public CommentServiceImpl(
+      TaskRepository taskRepository,
+      CommentRepository commentRepository,
+      CommentMapper commentMapper) {
     this.taskRepository = taskRepository;
+    this.commentRepository = commentRepository;
+    this.commentMapper = commentMapper;
   }
 
   @Override
-  public CommentDto save(CommentDto commentDto, Task task) {
+  public CommentDto save(CommentDto commentDto, Long taskId) {
 
+    Task task = taskRepository.findById(taskId);
+
+    if (task == null) {
+      throw new ObjectNotFoundException(taskId, "Task not found");
+    }
+    Comment commentToSave = commentMapper.map(commentDto, Comment.class);
+    Comment savedComment = commentRepository.save(commentToSave);
+
+    return commentMapper.map(savedComment, CommentDto.class);
   }
 }
