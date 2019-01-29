@@ -16,6 +16,7 @@ import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.TaskService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -46,6 +47,16 @@ public class TaskServiceImpl implements TaskService {
       return taskMapper.map(taskSaved, TaskDto.class);
     }
     return null;
+  }
+
+  @Override
+  public TaskDto findOneByTaskId(Long taskId) throws ObjectNotFoundException {
+
+    Task task = taskRepository.findById(taskId);
+    if (task == null) {
+      throw new ObjectNotFoundException(taskId, "Task not found");
+    }
+    return taskMapper.map(task, TaskDto.class);
   }
 
   @Override

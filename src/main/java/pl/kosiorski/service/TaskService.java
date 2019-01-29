@@ -13,6 +13,8 @@ public interface TaskService {
 
   List<TaskDto> findAllByUserToken(String token);
 
+  TaskDto findOneByTaskId(Long taskId) throws ObjectNotFoundException;
+
   TaskDto findOneByUserAndTaskId(String token, Long taksId) throws ObjectNotFoundException;
 
   TaskDto update(TaskDto taskDto, User user);
