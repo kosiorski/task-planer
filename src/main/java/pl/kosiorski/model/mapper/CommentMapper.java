@@ -16,6 +16,7 @@ public class CommentMapper extends ConfigurableMapper {
         .field("id", "id")
         .field("content", "content")
         .field("created", "created")
+        .field("created", "created")
         .byDefault()
         .register();
   }

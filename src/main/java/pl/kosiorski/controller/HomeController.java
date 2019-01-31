@@ -20,7 +20,6 @@ public class HomeController {
     this.authService = authService;
   }
 
-
   @PostMapping("/register")
   public UserDto register(@RequestBody User user) throws UserAlreadyExistsException {
 

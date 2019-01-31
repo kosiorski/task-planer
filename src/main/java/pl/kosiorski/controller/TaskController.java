@@ -1,28 +1,30 @@
 package pl.kosiorski.controller;
 
 import org.hibernate.ObjectNotFoundException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.TaskDto;
 import pl.kosiorski.exception.NoAuthenticationException;
+import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.service.AuthService;
 import pl.kosiorski.service.TaskService;
 import pl.kosiorski.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
 
+  private final String HEADER_KEY = "Authorization";
+
   private final TaskService taskService;
   private final AuthService authService;
   private final UserService userService;
-  private final String HEADER_KEY = "Authorization";
 
   public TaskController(TaskService taskService, AuthService authService, UserService userService) {
     this.taskService = taskService;
@@ -45,14 +47,16 @@ public class TaskController {
   @GetMapping("/{id}")
   public TaskDto getOneByUserToken(@RequestHeader(HEADER_KEY) String token, @PathVariable Long id) {
     try {
-      if (authService.validateToken(token)) {
-        return taskService.findOneByUserAndTaskId(token, id);
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, id)) {
+        return taskService.findOneById(id);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
-    } catch (ObjectNotFoundException e) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
+
+    } catch (ObjectNotFoundException | NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+
     return null;
   }
 
@@ -64,29 +68,30 @@ public class TaskController {
       if (authService.validateToken(token)) {
         return taskService.save(userService.findByToken(token), taskDto);
       }
-
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
     return null;
   }
 
-  // TODO block the possibility of deleting tasks of other users
-
   @DeleteMapping("/{id}")
   public ResponseEntity delete(@PathVariable Long id, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token)) {
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, id)) {
         taskService.deleteById(id);
         return new ResponseEntity(HttpStatus.OK);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
-    } catch (EmptyResultDataAccessException e) {
+    } catch (NoSuchElementException e) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
+
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+
     return null;
   }
 
@@ -94,12 +99,17 @@ public class TaskController {
   public TaskDto updade(
       @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token)) {
+      if (authService.validateToken(token)
+          && taskService.taskBelongToUser(token, taskDto.getId())) {
         return taskService.update(taskDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+
     return null;
   }
 }

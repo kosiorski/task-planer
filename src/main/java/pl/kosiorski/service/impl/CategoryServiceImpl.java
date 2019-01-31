@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.CategoryDto;
+import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.model.Category;
 import pl.kosiorski.model.User;
 import pl.kosiorski.model.mapper.CategoryMapper;
@@ -14,6 +15,7 @@ import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.CategoryService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -49,14 +51,12 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   @Transactional
-  public CategoryDto findOneByUserAndCategoryId(String token, Long categoryId)
-      throws ObjectNotFoundException {
+  public CategoryDto findOneById(Long categoryId) throws ObjectNotFoundException {
 
-    Category category =
-        categoryRepository.findByUserAndId(userRepository.findByToken(token), categoryId);
+    Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
 
-    if (category != null) {
-      return categoryMapper.map(category, CategoryDto.class);
+    if (categoryOptional.isPresent()) {
+      return categoryMapper.map(categoryOptional.get(), CategoryDto.class);
     } else {
       throw new ObjectNotFoundException(categoryId, "Category not found");
     }
@@ -75,9 +75,17 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public List<CategoryDto> findAll() {
-    List<Category> allCategories = categoryRepository.findAll();
-    return categoryMapper.mapAsList(allCategories, CategoryDto.class);
+  public boolean categoryBelongToUser(String userToken, Long categoryId)
+      throws NoAuthorizationException {
+
+    User user = userRepository.findByToken(userToken);
+    Category category = categoryRepository.findById(categoryId).get();
+
+    if (category.getUser().getId().equals(user.getId())) {
+      return true;
+    } else {
+      throw new NoAuthorizationException("You dont have authorization");
+    }
   }
 
   @Override
@@ -88,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   @Transactional
-  public void delete(User user, Long id) throws EmptyResultDataAccessException {
-    categoryRepository.deleteByUserAndId(user, id);
+  public void delete(Long id) throws EmptyResultDataAccessException {
+    categoryRepository.deleteById(id);
   }
 }

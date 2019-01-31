@@ -1,6 +1,7 @@
 package pl.kosiorski.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import pl.kosiorski.model.enums.PriorityEnum;
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "tasks")
 public class Task {
 
