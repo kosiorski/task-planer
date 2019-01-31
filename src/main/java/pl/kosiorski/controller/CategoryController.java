@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.CategoryDto;
 import pl.kosiorski.exception.NoAuthenticationException;
+import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.service.AuthService;
 import pl.kosiorski.service.CategoryService;
 import pl.kosiorski.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/categories")
@@ -77,21 +79,22 @@ public class CategoryController {
 
   // TODO fix statuses
 
-
   @DeleteMapping("/{id}")
   public ResponseEntity delete(
       @PathVariable Long id, @RequestHeader("Authorization") String token) {
     try {
-      if (authService.validateToken(token)) {
+      if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, id)) {
         categoryService.delete(userService.findByToken(token), id);
         return new ResponseEntity(HttpStatus.OK);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
-    } catch (EmptyResultDataAccessException e) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
+    } catch (NoSuchElementException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
+
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
     return null;
   }
@@ -109,5 +112,4 @@ public class CategoryController {
     }
     return null;
   }
-
 }

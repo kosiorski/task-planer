@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.CategoryDto;
+import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.model.Category;
 import pl.kosiorski.model.User;
 import pl.kosiorski.model.mapper.CategoryMapper;
@@ -72,6 +73,20 @@ public class CategoryServiceImpl implements CategoryService {
       return categoryMapper.map(updated, CategoryDto.class);
     }
     return null;
+  }
+
+  @Override
+  public boolean categoryBelongToUser(String userToken, Long categoryId)
+      throws NoAuthorizationException {
+
+    User user = userRepository.findByToken(userToken);
+    Category category = categoryRepository.findById(categoryId).get();
+
+    if (category.getUser() == user) {
+      return true;
+    } else {
+      throw new NoAuthorizationException("You dont have authorization");
+    }
   }
 
   @Override
