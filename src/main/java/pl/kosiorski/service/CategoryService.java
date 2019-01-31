@@ -12,13 +12,11 @@ public interface CategoryService {
 
   CategoryDto save(CategoryDto categoryDto, User user);
 
-  void delete(User user, Long id) throws EmptyResultDataAccessException;
+  void delete(Long id) throws EmptyResultDataAccessException;
 
   CategoryDto findOneById(Long categoryId) throws ObjectNotFoundException;
 
   CategoryDto update(CategoryDto categoryDto, User user);
-
-  List<CategoryDto> findAll();
 
   List<CategoryDto> findAllByUserToken(String token);
 

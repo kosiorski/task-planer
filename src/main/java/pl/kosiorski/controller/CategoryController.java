@@ -21,6 +21,8 @@ import java.util.NoSuchElementException;
 @RequestMapping("/categories")
 public class CategoryController {
 
+  private final String HEADER_KEY = "Authorization";
+
   private final CategoryService categoryService;
   private final AuthService authService;
   private final UserService userService;
@@ -34,7 +36,7 @@ public class CategoryController {
   }
 
   @GetMapping("")
-  public List<CategoryDto> getAllByUserToken(@RequestHeader("Authorization") String token) {
+  public List<CategoryDto> getAllByUserToken(@RequestHeader(HEADER_KEY) String token) {
 
     try {
       if (authService.validateToken(token)) {
@@ -49,7 +51,7 @@ public class CategoryController {
 
   @GetMapping("/{id}")
   public CategoryDto getOneByUserToken(
-      @RequestHeader("Authorization") String token, @PathVariable Long id) {
+      @RequestHeader(HEADER_KEY) String token, @PathVariable Long id) {
 
     try {
       if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, id)) {
@@ -67,7 +69,7 @@ public class CategoryController {
 
   @PostMapping("")
   public CategoryDto save(
-      @RequestBody @Valid CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
+      @RequestBody @Valid CategoryDto categoryDto, @RequestHeader(HEADER_KEY) String token) {
 
     try {
       if (authService.validateToken(token)) {
@@ -81,11 +83,10 @@ public class CategoryController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity delete(
-      @PathVariable Long id, @RequestHeader("Authorization") String token) {
+  public ResponseEntity delete(@PathVariable Long id, @RequestHeader(HEADER_KEY) String token) {
     try {
       if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, id)) {
-        categoryService.delete(userService.findByToken(token), id);
+        categoryService.delete(id);
         return new ResponseEntity(HttpStatus.OK);
       }
     } catch (NoAuthenticationException e) {
@@ -104,7 +105,7 @@ public class CategoryController {
 
   @PutMapping()
   public CategoryDto updade(
-      @Valid @RequestBody CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
+      @Valid @RequestBody CategoryDto categoryDto, @RequestHeader(HEADER_KEY) String token) {
 
     try {
       if (authService.validateToken(token)

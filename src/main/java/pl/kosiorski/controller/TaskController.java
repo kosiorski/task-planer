@@ -20,10 +20,11 @@ import java.util.NoSuchElementException;
 @RequestMapping("/tasks")
 public class TaskController {
 
+  private final String HEADER_KEY = "Authorization";
+
   private final TaskService taskService;
   private final AuthService authService;
   private final UserService userService;
-  private final String HEADER_KEY = "Authorization";
 
   public TaskController(TaskService taskService, AuthService authService, UserService userService) {
     this.taskService = taskService;
@@ -46,13 +47,13 @@ public class TaskController {
   @GetMapping("/{id}")
   public TaskDto getOneByUserToken(@RequestHeader(HEADER_KEY) String token, @PathVariable Long id) {
     try {
-      if (authService.validateToken(token)) {
-        return taskService.findOneByUserAndTaskId(token, id);
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, id)) {
+        return taskService.findOneById(id);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
-    } catch (ObjectNotFoundException e) {
+    } catch (ObjectNotFoundException | NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
 
@@ -67,7 +68,6 @@ public class TaskController {
       if (authService.validateToken(token)) {
         return taskService.save(userService.findByToken(token), taskDto);
       }
-
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
@@ -85,8 +85,7 @@ public class TaskController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
     } catch (NoSuchElementException e) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
@@ -99,8 +98,7 @@ public class TaskController {
   public TaskDto updade(
       @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token)
-          && taskService.taskBelongToUser(token, taskDto.getId())) {
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskDto.getId())) {
         return taskService.update(taskDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {

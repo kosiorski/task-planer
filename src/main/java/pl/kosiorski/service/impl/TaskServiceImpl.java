@@ -50,7 +50,7 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
-  public TaskDto findOneByTaskId(Long taskId) throws ObjectNotFoundException {
+  public TaskDto findOneById(Long taskId) throws ObjectNotFoundException {
 
     Task task = taskRepository.findById(taskId);
     if (task == null) {
@@ -76,16 +76,6 @@ public class TaskServiceImpl implements TaskService {
     } else {
       throw new NoAuthorizationException("You dont have authorization");
     }
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public TaskDto findOneByUserAndTaskId(String token, Long taskId) throws ObjectNotFoundException {
-    Task task = taskRepository.findByUserAndId(userRepository.findByToken(token), taskId);
-
-    if (task != null) {
-      return taskMapper.map(task, TaskDto.class);
-    } else throw new ObjectNotFoundException(taskId, "Task not found");
   }
 
   @Override

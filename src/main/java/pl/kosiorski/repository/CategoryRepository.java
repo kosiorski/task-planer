@@ -12,11 +12,4 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
   List<Category> findAllByUser(User user);
-
-  Category findByUserAndId(User user, Long id);
-
-  //TODO
-  //  Category updateByUserAndId (User user, Long id);
-
-  void deleteByUserAndId(User user, Long id);
 }

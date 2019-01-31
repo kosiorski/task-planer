@@ -89,12 +89,6 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public List<CategoryDto> findAll() {
-    List<Category> allCategories = categoryRepository.findAll();
-    return categoryMapper.mapAsList(allCategories, CategoryDto.class);
-  }
-
-  @Override
   public List<CategoryDto> findAllByUserToken(String token) {
     List<Category> allByUser = categoryRepository.findAllByUser(userRepository.findByToken(token));
     return categoryMapper.mapAsList(allByUser, CategoryDto.class);
@@ -102,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   @Transactional
-  public void delete(User user, Long id) throws EmptyResultDataAccessException {
-    categoryRepository.deleteByUserAndId(user, id);
+  public void delete(Long id) throws EmptyResultDataAccessException {
+    categoryRepository.deleteById(id);
   }
 }

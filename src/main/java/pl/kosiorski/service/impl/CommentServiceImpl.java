@@ -2,10 +2,13 @@ package pl.kosiorski.service.impl;
 
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.CommentDto;
 import pl.kosiorski.model.Comment;
 import pl.kosiorski.model.Task;
+import pl.kosiorski.model.User;
 import pl.kosiorski.model.mapper.CommentMapper;
 import pl.kosiorski.repository.CommentRepository;
 import pl.kosiorski.repository.TaskRepository;
@@ -41,5 +44,11 @@ public class CommentServiceImpl implements CommentService {
     Comment savedComment = commentRepository.save(commentToSave);
 
     return commentMapper.map(savedComment, CommentDto.class);
+  }
+
+  @Override
+  @Transactional
+  public void deleteById(Long id) throws EmptyResultDataAccessException {
+    commentRepository.deleteById(id);
   }
 }
