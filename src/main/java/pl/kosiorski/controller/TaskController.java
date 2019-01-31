@@ -85,7 +85,8 @@ public class TaskController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
     } catch (NoSuchElementException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Task with the id: " + id + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
@@ -98,7 +99,8 @@ public class TaskController {
   public TaskDto updade(
       @Valid @RequestBody TaskDto taskDto, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskDto.getId())) {
+      if (authService.validateToken(token)
+          && taskService.taskBelongToUser(token, taskDto.getId())) {
         return taskService.update(taskDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {

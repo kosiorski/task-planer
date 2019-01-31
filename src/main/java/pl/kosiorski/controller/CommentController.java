@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.kosiorski.dto.CommentDto;
-import pl.kosiorski.dto.TaskDto;
 import pl.kosiorski.exception.NoAuthenticationException;
 import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.service.AuthService;
@@ -56,10 +55,10 @@ public class CommentController {
     return null;
   }
 
-  @DeleteMapping("/{taskId}")
-  public ResponseEntity delete(@PathVariable Long taskId, @RequestHeader(HEADER_KEY) String token) {
+  @DeleteMapping("/{commentId}")
+  public ResponseEntity delete(@PathVariable Long commentId, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, )) {
         commentService.deleteById(taskId);
         return new ResponseEntity(HttpStatus.OK);
       }
@@ -68,7 +67,7 @@ public class CommentController {
 
     } catch (NoSuchElementException e) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Task with the id: " + taskId + " does not exist");
+          HttpStatus.BAD_REQUEST, "Comment with the id: " + taskId + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);

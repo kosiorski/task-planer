@@ -1,6 +1,5 @@
 package pl.kosiorski.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +33,9 @@ public class User {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Category> categories;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Comment> comments;
 
   private boolean active;
 

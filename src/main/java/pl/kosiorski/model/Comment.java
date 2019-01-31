@@ -1,6 +1,5 @@
 package pl.kosiorski.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,4 +26,8 @@ public class Comment {
   @ManyToOne
   @JoinColumn(name = "task_id")
   private Task task;
+
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 }
