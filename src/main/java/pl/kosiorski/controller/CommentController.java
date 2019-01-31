@@ -56,11 +56,11 @@ public class CommentController {
     return null;
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity delete(@PathVariable Long id, @RequestHeader(HEADER_KEY) String token) {
+  @DeleteMapping("/{taskId}")
+  public ResponseEntity delete(@PathVariable Long taskId, @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token) && taskService.taskBelongToUser(token, id)) {
-        commentService.deleteById(id);
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
+        commentService.deleteById(taskId);
         return new ResponseEntity(HttpStatus.OK);
       }
     } catch (NoAuthenticationException e) {
@@ -68,7 +68,7 @@ public class CommentController {
 
     } catch (NoSuchElementException e) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
+          HttpStatus.BAD_REQUEST, "Task with the id: " + taskId + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
@@ -77,8 +77,9 @@ public class CommentController {
     return null;
   }
 
-  @GetMapping("/{id}")
-  public List<CommentDto> getAllByTaskId(@RequestHeader(HEADER_KEY) String token, Long taskId) {
+  @GetMapping("/{taskId}")
+  public List<CommentDto> getAllByTaskId(
+      @RequestHeader(HEADER_KEY) String token, @PathVariable Long taskId) {
     try {
       if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
         return commentService.findAllByTask(taskService.findOneById(taskId));
@@ -89,6 +90,25 @@ public class CommentController {
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+    return null;
+  }
+
+  @PutMapping("/{taskId}")
+  public CommentDto updade(
+      @Valid @RequestBody CommentDto commentDto,
+      @RequestHeader(HEADER_KEY) String token,
+      @PathVariable Long taskId) {
+    try {
+      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
+        return commentService.update(commentDto);
+      }
+    } catch (NoAuthenticationException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+    }
+
     return null;
   }
 }

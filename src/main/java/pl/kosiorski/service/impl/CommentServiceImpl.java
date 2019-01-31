@@ -9,6 +9,7 @@ import pl.kosiorski.dto.CommentDto;
 import pl.kosiorski.dto.TaskDto;
 import pl.kosiorski.model.Comment;
 import pl.kosiorski.model.Task;
+import pl.kosiorski.model.User;
 import pl.kosiorski.model.mapper.CommentMapper;
 import pl.kosiorski.model.mapper.TaskMapper;
 import pl.kosiorski.repository.CommentRepository;
@@ -57,6 +58,17 @@ public class CommentServiceImpl implements CommentService {
     Comment savedComment = commentRepository.save(commentToSave);
 
     return commentMapper.map(savedComment, CommentDto.class);
+  }
+
+  @Override
+  public CommentDto update(CommentDto commentDto) {
+    if (commentDto != null) {
+
+      Comment commentToUpdate = commentMapper.map(commentDto, Comment.class);
+      Comment updated = commentRepository.save(commentToUpdate);
+      return commentMapper.map(updated, CommentDto.class);
+    }
+    return null;
   }
 
   @Override
