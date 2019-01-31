@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
     User user = userRepository.findByToken(userToken);
     Category category = categoryRepository.findById(categoryId).get();
 
-    if (category.getUser() == user) {
+    if (category.getUser().getId().equals(user.getId())) {
       return true;
     } else {
       throw new NoAuthorizationException("You dont have authorization");
