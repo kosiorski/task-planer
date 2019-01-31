@@ -52,14 +52,14 @@ public class CategoryController {
       @RequestHeader("Authorization") String token, @PathVariable Long id) {
 
     try {
-      if (authService.validateToken(token)) {
-        return categoryService.findOneByUserAndCategoryId(token, id);
+      if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, id)) {
+        return categoryService.findOneById(id);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
-    } catch (ObjectNotFoundException e) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
+    } catch (ObjectNotFoundException | NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
 
     return null;
@@ -107,7 +107,8 @@ public class CategoryController {
       @Valid @RequestBody CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
 
     try {
-      if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, categoryDto.getId())) {
+      if (authService.validateToken(token)
+          && categoryService.categoryBelongToUser(token, categoryDto.getId())) {
         return categoryService.update(categoryDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {

@@ -15,6 +15,7 @@ import pl.kosiorski.repository.UserRepository;
 import pl.kosiorski.service.CategoryService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -50,14 +51,12 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   @Transactional
-  public CategoryDto findOneByUserAndCategoryId(String token, Long categoryId)
-      throws ObjectNotFoundException {
+  public CategoryDto findOneById(Long categoryId) throws ObjectNotFoundException {
 
-    Category category =
-        categoryRepository.findByUserAndId(userRepository.findByToken(token), categoryId);
+    Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
 
-    if (category != null) {
-      return categoryMapper.map(category, CategoryDto.class);
+    if (categoryOptional.isPresent()) {
+      return categoryMapper.map(categoryOptional.get(), CategoryDto.class);
     } else {
       throw new ObjectNotFoundException(categoryId, "Category not found");
     }
