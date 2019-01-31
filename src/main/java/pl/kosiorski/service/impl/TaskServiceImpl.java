@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kosiorski.dto.TaskDto;
+import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.model.Task;
 import pl.kosiorski.model.User;
 import pl.kosiorski.model.enums.PriorityEnum;
@@ -48,8 +49,6 @@ public class TaskServiceImpl implements TaskService {
     return null;
   }
 
-
-
   @Override
   public TaskDto findOneByTaskId(Long taskId) throws ObjectNotFoundException {
 
@@ -65,6 +64,18 @@ public class TaskServiceImpl implements TaskService {
 
     List<Task> tasks = taskRepository.findByUser(userRepository.findByToken(token));
     return taskMapper.mapAsList(tasks, TaskDto.class);
+  }
+
+  @Override
+  public boolean taskBelongToUser(String userToken, Long taskId) throws NoAuthorizationException {
+    User user = userRepository.findByToken(userToken);
+    Task task = taskRepository.findById(taskId);
+
+    if (task.getUser().getId().equals(user.getId())) {
+      return true;
+    } else {
+      throw new NoAuthorizationException("You dont have authorization");
+    }
   }
 
   @Override

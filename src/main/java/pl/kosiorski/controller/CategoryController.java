@@ -2,7 +2,6 @@ package pl.kosiorski.controller;
 
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +43,7 @@ public class CategoryController {
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
+
     return null;
   }
 
@@ -57,9 +57,11 @@ public class CategoryController {
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized");
     }
+
     return null;
   }
 
@@ -74,10 +76,9 @@ public class CategoryController {
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
+
     return null;
   }
-
-  // TODO fix statuses
 
   @DeleteMapping("/{id}")
   public ResponseEntity delete(
@@ -91,11 +92,13 @@ public class CategoryController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 
     } catch (NoSuchElementException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Category with the id: " + id + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+
     return null;
   }
 
@@ -104,12 +107,16 @@ public class CategoryController {
       @Valid @RequestBody CategoryDto categoryDto, @RequestHeader("Authorization") String token) {
 
     try {
-      if (authService.validateToken(token)) {
+      if (authService.validateToken(token) && categoryService.categoryBelongToUser(token, categoryDto.getId())) {
         return categoryService.update(categoryDto, userService.findByToken(token));
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+
+    } catch (NoAuthorizationException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
     }
+
     return null;
   }
 }
