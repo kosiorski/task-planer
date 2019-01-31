@@ -103,7 +103,7 @@ public class CategoryController {
     return null;
   }
 
-  @PutMapping()
+  @PutMapping
   public CategoryDto updade(
       @Valid @RequestBody CategoryDto categoryDto, @RequestHeader(HEADER_KEY) String token) {
 

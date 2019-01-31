@@ -12,6 +12,7 @@ import pl.kosiorski.exception.NoAuthorizationException;
 import pl.kosiorski.service.AuthService;
 import pl.kosiorski.service.CommentService;
 import pl.kosiorski.service.TaskService;
+import pl.kosiorski.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,13 +27,18 @@ public class CommentController {
   private final AuthService authService;
   private final CommentService commentService;
   private final TaskService taskService;
+  private final UserService userService;
 
   @Autowired
   public CommentController(
-      AuthService authService, CommentService commentService, TaskService taskService) {
+      AuthService authService,
+      CommentService commentService,
+      TaskService taskService,
+      UserService userService) {
     this.authService = authService;
     this.commentService = commentService;
     this.taskService = taskService;
+    this.userService = userService;
   }
 
   @PostMapping("/{taskId}/comments")
@@ -55,10 +61,14 @@ public class CommentController {
     return null;
   }
 
-  @DeleteMapping("/{commentId}")
-  public ResponseEntity delete(@PathVariable Long commentId, @RequestHeader(HEADER_KEY) String token) {
+  @DeleteMapping("/{taskId}/comments{commentId}")
+  public ResponseEntity delete(
+      @PathVariable Long taskId,
+      @PathVariable Long commentId,
+      @RequestHeader(HEADER_KEY) String token) {
     try {
-      if (authService.validateToken(token) && taskService.taskBelongToUser(token, )) {
+      if (authService.validateToken(token)
+          && commentService.commentBelongToUserAndTask(token, taskId, commentId)) {
         commentService.deleteById(taskId);
         return new ResponseEntity(HttpStatus.OK);
       }
@@ -67,7 +77,7 @@ public class CommentController {
 
     } catch (NoSuchElementException e) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Comment with the id: " + taskId + " does not exist");
+          HttpStatus.BAD_REQUEST, "Comment with the id: " + commentId + " does not exist");
 
     } catch (NoAuthorizationException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
@@ -76,7 +86,7 @@ public class CommentController {
     return null;
   }
 
-  @GetMapping("/{taskId}")
+  @GetMapping("/{taskId}/comments")
   public List<CommentDto> getAllByTaskId(
       @RequestHeader(HEADER_KEY) String token, @PathVariable Long taskId) {
     try {
@@ -92,14 +102,16 @@ public class CommentController {
     return null;
   }
 
-  @PutMapping("/{taskId}")
+  @PutMapping("/{taskId}/comments{commentId")
   public CommentDto updade(
       @Valid @RequestBody CommentDto commentDto,
       @RequestHeader(HEADER_KEY) String token,
-      @PathVariable Long taskId) {
+      @PathVariable Long taskId,
+      @PathVariable Long commentId) {
     try {
-      if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
-        return commentService.update(commentDto);
+      if (authService.validateToken(token)
+          && commentService.commentBelongToUserAndTask(token, taskId, commentId)) {
+        return commentService.update(userService.findByToken(token), commentDto);
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
