@@ -81,7 +81,7 @@ public class CommentController {
   public List<CommentDto> getAllByTaskId(@RequestHeader(HEADER_KEY) String token, Long taskId) {
     try {
       if (authService.validateToken(token) && taskService.taskBelongToUser(token, taskId)) {
-        return commentService.fin(taskId);
+        return commentService.findAllByTask(taskService.findOneById(taskId));
       }
     } catch (NoAuthenticationException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
