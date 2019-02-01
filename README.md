@@ -1,6 +1,6 @@
 # task-planer
 
-A simple RESTful application used to plan tasks. It uses token authentication.
+A simple RESTful application used to plan tasks. The login method returns a token that needs to be used in the HTTP header to perform any action - simply authentication.
 
 Used stack:
 * Java
