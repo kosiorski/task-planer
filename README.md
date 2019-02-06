@@ -18,3 +18,5 @@ Features:
 * Token authentication
 
 Application in progress.
+
+<img width="1440" alt="swagger" src="https://user-images.githubusercontent.com/27889606/52371478-eee3bd00-2a55-11e9-804e-045e3af1dec2.png">
